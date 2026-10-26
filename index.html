@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siteflare</title>
+<meta name="description" content="SEO and AI-readiness audits for any website.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23e8590c'/><path d='M16 7l3 7h-6z M16 25l-3-7h6z' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#17181a; --muted:#6b6e74; --line:#e4e2dd;
+  --accent:#e8590c; --accent-soft:#fdeee4;
+  --good:#1f8a4c; --good-soft:#e5f4ea; --warn:#b7791f; --warn-soft:#fbf1dc; --bad:#c92a2a; --bad-soft:#fbe6e6;
+  --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Inter Tight",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111214; --panel:#1a1b1e; --ink:#ececec; --muted:#9a9ca3; --line:#2b2d31;
+    --accent:#ff7a2e; --accent-soft:#3a2416;
+    --good:#4cc47d; --good-soft:#15291d; --warn:#e5ad4b; --warn-soft:#2e2514; --bad:#f06a6a; --bad-soft:#331a1a;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 80px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
+.brand i{width:22px;height:22px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 0 4px var(--accent-soft)}
+.status{font:12px var(--mono);color:var(--muted);display:flex;gap:12px;align-items:center}
+.status button{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+form{display:flex;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px}
+form input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:16px var(--mono);padding:10px 12px;outline:none}
+.btn{border:0;background:var(--ink);color:var(--bg);font:600 14px var(--sans);padding:0 20px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:wait}
+.recent{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;min-height:26px}
+.chip{font:12px var(--mono);padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.chip b{color:var(--ink);font-weight:500;margin-left:6px}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.progress{margin-top:28px;display:none}
+.progress.on{display:block}
+.bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar span{display:block;height:100%;width:30%;background:var(--accent);animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+.progress p{font:13px var(--mono);color:var(--muted)}
+.error{margin-top:24px;padding:14px 16px;border-radius:10px;background:var(--bad-soft);color:var(--bad);display:none}
+#report{display:none;margin-top:32px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+.ring{position:relative;width:148px;height:148px}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .val strong{font-size:38px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.ring .val small{display:block;font:12px var(--mono);color:var(--muted);margin-top:4px}
+.hero h2{margin:0 0 4px;font-size:22px;letter-spacing:-.01em;word-break:break-all}
+.hero .meta{color:var(--muted);font-size:13px;font-family:var(--mono)}
+.grade{display:inline-block;font:700 13px var(--mono);padding:2px 9px;border-radius:6px;margin-right:8px}
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 22px;margin-top:18px}
+.cat{font-size:13px}
+.cat div:first-child{display:flex;justify-content:space-between;margin-bottom:5px}
+.cat span.n{font-family:var(--mono);color:var(--muted)}
+.cat .track{height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.cat .track i{display:block;height:100%;border-radius:6px}
+.cols{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h3{margin:0 0 14px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;display:flex;justify-content:space-between}
+ul.items{list-style:none;margin:0;padding:0}
+ul.items li{padding:10px 0;border-top:1px solid var(--line);display:flex;gap:10px;font-size:14px}
+ul.items li:first-child{border-top:0;padding-top:0}
+.dot{flex:none;width:8px;height:8px;border-radius:50%;margin-top:7px}
+.tag{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:var(--bad-soft);color:var(--bad);margin-right:6px;vertical-align:1px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:0 8px 8px 0}
+td{padding:8px 8px 8px 0;border-top:1px solid var(--line);vertical-align:top}
+td.mono,.mono{font-family:var(--mono);font-size:12px}
+.pill{font:500 11px var(--mono);padding:2px 8px;border-radius:99px;white-space:nowrap}
+.ok{background:var(--good-soft);color:var(--good)} .mid{background:var(--warn-soft);color:var(--warn)} .no{background:var(--bad-soft);color:var(--bad)} .na{background:var(--line);color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:13px}
+dt{color:var(--muted)} dd{margin:0;font-family:var(--mono);font-size:12px;word-break:break-word}
+.tools{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--ink);font:500 13px var(--sans);padding:8px 14px;border-radius:9px;cursor:pointer}
+.ghost:hover{border-color:var(--ink)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);padding:22px;max-width:380px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog input{width:100%;margin:12px 0;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:14px var(--mono)}
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .cats{grid-template-columns:1fr 1fr;text-align:left;width:100%}
+  .cols,.facts{grid-template-columns:1fr}
+  .btn{padding:0 14px}
+  .own{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><i></i>Siteflare</div>
+    <div class="status" id="status"></div>
+  </header>
+
+  <form id="f">
+    <input id="url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="example.com" aria-label="Website URL" required>
+    <button class="btn" id="go" type="submit">Run audit</button>
+  </form>
+  <div class="recent" id="recent"></div>
+
+  <div class="progress" id="progress"><div class="bar"><span></span></div><p id="ptext">Fetching robots.txt…</p></div>
+  <div class="error" id="err"></div>
+
+  <section id="report"></section>
+</div>
+
+<dialog id="keyDlg">
+  <form method="dialog" id="keyForm" style="all:unset;display:block">
+    <strong>Access key</strong>
+    <div style="color:var(--muted);font-size:13px;margin-top:4px">This deployment is protected. Enter the ACCESS_KEY you set in Vercel. It's saved in this browser only.</div>
+    <input id="keyIn" type="password" autocomplete="current-password" aria-label="Access key">
+    <button class="btn" style="padding:10px 18px">Save</button>
+  </form>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const MAX = {ai_readiness:35, seo:25, performance:15, content_social:15, accessibility:10, security_tracking:5};
+const LABEL = {ai_readiness:"AI readiness", seo:"SEO", performance:"Performance", content_social:"Content & social", accessibility:"Accessibility", security_tracking:"Security & tracking"};
+let health = {}, lastResult = null;
+
+function color(pct){ return pct >= .8 ? "var(--good)" : pct >= .5 ? "var(--warn)" : "var(--bad)"; }
+function soft(pct){ return pct >= .8 ? "var(--good-soft)" : pct >= .5 ? "var(--warn-soft)" : "var(--bad-soft)"; }
+
+async function loadHealth(){
+  try{
+    const r = await fetch("/api/health", {headers:{"x-access-key": store.get("sf_key","")}});
+    health = await r.json();
+  }catch(e){ health = {}; }
+  const s = [];
+  s.push(`render: ${health.rendering === "browserless" ? "on" : "off"}`);
+  if (health.key_required) s.push(`<button id="keyBtn">${health.key_valid ? "key ✓" : "set key"}</button>`);
+  $("#status").innerHTML = s.join(" · ");
+  const kb = $("#keyBtn"); if (kb) kb.onclick = askKey;
+  if (health.key_required && !health.key_valid) askKey();
+}
+function askKey(){ $("#keyIn").value = store.get("sf_key",""); $("#keyDlg").showModal(); }
+$("#keyForm").addEventListener("submit", () => { store.set("sf_key", $("#keyIn").value.trim()); loadHealth(); });
+
+function renderRecent(){
+  const rec = store.get("sf_recent", []);
+  $("#recent").innerHTML = rec.map((r,i) =>
+    `<button class="chip" data-i="${i}">${esc(r.host)}<b style="color:${color(r.score/100)}">${Math.round(r.score)}</b></button>`).join("");
+  $("#recent").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    const r = rec[+b.dataset.i];
+    $("#url").value = r.url;
+    if (r.result) { lastResult = r.result; render(r.url, r.result, r.at); } else run(r.url);
+  });
+}
+function remember(url, result){
+  let host; try{ host = new URL(/^https?:/.test(url) ? url : "https://"+url).hostname; }catch(e){ host = url; }
+  const rec = store.get("sf_recent", []).filter(r => r.host !== host);
+  rec.unshift({host, url, score: result.scorecard.total_score, at: Date.now(), result});
+  store.set("sf_recent", rec.slice(0, 8));
+  renderRecent();
+}
+
+const STEPS = ["Fetching robots.txt…","Checking llms.txt and sitemap…","Testing AI crawler user-agents…","Rendering the page in a headless browser…","Scoring…"];
+let stepTimer;
+async function run(url){
+  url = url.trim(); if (!url) return;
+  $("#err").style.display = "none"; $("#report").style.display = "none";
+  $("#progress").classList.add("on"); $("#go").disabled = true;
+  let i = 0; $("#ptext").textContent = STEPS[0];
+  stepTimer = setInterval(() => { i = Math.min(i+1, STEPS.length-1); $("#ptext").textContent = STEPS[i]; }, 4000);
+  try{
+    const r = await fetch("/api/audit", {method:"POST", headers:{"content-type":"application/json","x-access-key":store.get("sf_key","")}, body: JSON.stringify({url})});
+    const data = await r.json().catch(() => ({error:`Server returned ${r.status}`}));
+    if (r.status === 401){ askKey(); throw new Error("Access key required."); }
+    if (!r.ok || data.error || data.detail) throw new Error(data.error || data.detail || `Error ${r.status}`);
+    lastResult = data; remember(url, data); render(url, data, Date.now());
+  }catch(e){
+    $("#err").textContent = e.message || "Something went wrong."; $("#err").style.display = "block";
+  }finally{
+    clearInterval(stepTimer); $("#progress").classList.remove("on"); $("#go").disabled = false;
+  }
+}
+$("#f").addEventListener("submit", e => { e.preventDefault(); run($("#url").value); });
+
+function pill(cls, txt){ return `<span class="pill ${cls}">${esc(txt)}</span>`; }
+function botStatus(s){
+  return {ok:pill("ok","ok"), blocked:pill("no","blocked"), challenged:pill("mid","challenged"), error:pill("na","error")}[s] || pill("na","—");
+}
+
+function render(url, d, at){
+  const sc = d.scorecard, total = sc.total_score, pct = total/100, ai = d.ai_readiness || {};
+  const C = 2*Math.PI*64;
+  const cats = Object.keys(MAX).map(k => {
+    const v = sc.category_scores[k] ?? 0, p = Math.min(1, v/MAX[k]);
+    return `<div class="cat"><div><span>${LABEL[k]}</span><span class="n">${(+v).toFixed(v%1?1:0)}/${MAX[k]}</span></div>
+      <div class="track"><i style="width:${p*100}%;background:${color(p)}"></i></div></div>`;
+  }).join("");
+
+  const actions = sc.action_items.map(a => {
+    const crit = a.startsWith("Critical:");
+    return `<li><span class="dot" style="background:${crit?"var(--bad)":"var(--warn)"}"></span><span>${crit?'<span class="tag">critical</span>':""}${esc(a.replace(/^Critical:\s*/,""))}</span></li>`;
+  }).sort((a,b) => (b.includes("tag")) - (a.includes("tag"))).join("");
+  const strengths = sc.strengths.map(s => `<li><span class="dot" style="background:var(--good)"></span><span>${esc(s)}</span></li>`).join("") || `<li style="color:var(--muted)">None yet.</li>`;
+
+  const live = (ai.active_bot_challenge || {}).bots || {};
+  const robotsBots = ai.bots || {};
+  const names = [...new Set([...Object.keys(robotsBots), ...Object.keys(live)])];
+  const botRows = names.map(n => {
+    const rb = robotsBots[n], lv = live[n];
+    const robots = rb ? (rb.allowed ? pill("ok","allowed") : pill("no","disallowed")) : pill("na", ai.robots_status || "—");
+    return `<tr><td class="mono">${esc(n)}</td><td class="own" style="color:var(--muted)">${esc((rb||lv).label)}</td><td>${robots}</td><td>${lv ? botStatus(lv.status) + (lv.http_status ? ` <span class="mono" style="color:var(--muted)">${lv.http_status}</span>`:"") : pill("na","not tested")}</td></tr>`;
+  }).join("");
+  const vendors = ((ai.active_bot_challenge||{}).bot_management_detected||[]);
+
+  const rr = ai.raw_vs_rendered || {};
+  const rrPill = {pass:pill("ok","pass"), partial:pill("mid","partial"), fail:pill("no","fail"), insufficient_content:pill("na","too thin"), skipped:pill("na","skipped"), error:pill("na","error")}[rr.status] || pill("na","—");
+  const sm = ai.sitemap_data || {}, ll = ai.llms_text || {}, seo = d.seo || {}, so = d.socials || {};
+  const yes = b => b ? pill("ok","yes") : pill("no","no");
+  const val = v => (v === undefined || v === null || v === "None" || v === "") ? `<span style="color:var(--bad)">missing</span>` : esc(v);
+  const socials = ["linkedin","facebook","instagram","tiktok"].filter(k => so[k]);
+  const when = new Date(at).toLocaleString([], {dateStyle:"medium", timeStyle:"short"});
+
+  $("#report").innerHTML = `
+  <div class="hero">
+    <div class="ring">
+      <svg width="148" height="148"><circle cx="74" cy="74" r="64" fill="none" stroke="var(--line)" stroke-width="10"/>
+      <circle cx="74" cy="74" r="64" fill="none" stroke="${color(pct)}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
+      <div class="val"><div><strong>${Math.round(total)}</strong><small>/ 100</small></div></div>
+    </div>
+    <div style="width:100%">
+      <h2>${esc(seo.title && seo.title !== "None" ? seo.title.trim() : url)}</h2>
+      <div class="meta"><span class="grade" style="background:${soft(pct)};color:${color(pct)}">${esc(sc.ai_readiness_grade)}</span>${esc(url)} · ${esc(when)}</div>
+      <div class="cats">${cats}</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="card"><h3>Fix next <span>${sc.action_items.length}</span></h3><ul class="items">${actions || '<li style="color:var(--muted)">Nothing to fix.</li>'}</ul></div>
+    <div class="card"><h3>Working well <span>${sc.strengths.length}</span></h3><ul class="items">${strengths}</ul></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>AI crawlers <span>${vendors.length ? "bot mgmt: "+esc(vendors.join(", ")) : ""}</span></h3>
+    <div style="overflow-x:auto"><table><thead><tr><th>Bot</th><th class="own">Owner</th><th>robots.txt</th><th>Live response</th></tr></thead><tbody>${botRows || '<tr><td colspan=4 style="color:var(--muted)">robots.txt was '+esc(ai.robots_status)+'</td></tr>'}</tbody></table></div>
+  </div>
+
+  <div class="facts" style="margin-top:16px">
+    <div class="card"><h3>AI readiness</h3><dl>
+      <dt>Raw vs rendered</dt><dd>${rrPill} ${rr.ratio != null ? `${Math.round(rr.ratio*100)}% · ${rr.raw_words} / ${rr.rendered_words} words` : ""}</dd>
+      <dt>robots.txt</dt><dd>${esc(ai.robots_status)}</dd>
+      <dt>Sitemap</dt><dd>${sm.found ? `${esc(sm.type)} · ${sm.url_count} ${sm.type==="index"?"sitemaps":"URLs"} · lastmod ${sm.has_lastmod?"yes":"no"}` : val(null)}</dd>
+      <dt>llms.txt</dt><dd>${ll.exists ? `${ll.word_count} words · markdown ${ll.has_markdown?"yes":"no"}` : val(null)}</dd>
+      <dt>Meta robots</dt><dd>${esc(ai.meta_robots || "none")}</dd>
+      <dt>X-Robots-Tag</dt><dd>${esc(ai.x_robots_tag)}</dd>
+      <dt>Cookie wall</dt><dd>${ai.cookie_wall_detected ? pill("mid","detected") : "none"}</dd>
+    </dl></div>
+    <div class="card"><h3>On-page SEO</h3><dl>
+      <dt>Meta description</dt><dd>${val(seo.meta_desc)}</dd>
+      <dt>Headings</dt><dd>H1 ${seo.h1_count} · H2 ${seo.h2_count} · H3 ${seo.h3_count}</dd>
+      <dt>Images</dt><dd>${seo.images} total · ${seo.alt_text} missing alt</dd>
+      <dt>Canonical</dt><dd>${val(seo.canonical_tag)}</dd>
+      <dt>Schema (JSON-LD)</dt><dd>${yes(seo.schema_detected)}</dd>
+      <dt>Word count</dt><dd>${seo.word_count}</dd>
+      <dt>Response time</dt><dd>${(+d.performance.load_time_seconds).toFixed(2)}s</dd>
+    </dl></div>
+    <div class="card"><h3>Social & content</h3><dl>
+      <dt>Open Graph</dt><dd>${Object.keys(so.open_graph||{}).length} tags</dd>
+      <dt>Twitter card</dt><dd>${Object.keys(so.twitter||{}).length} tags</dd>
+      <dt>Profiles</dt><dd>${socials.length ? socials.join(", ") : val(null)}</dd>
+      <dt>Favicon</dt><dd>${val(so.favicon)}</dd>
+      <dt>Footer year</dt><dd>${val(d.content.copyright_year)}</dd>
+    </dl></div>
+    <div class="card"><h3>Security & tracking</h3><dl>
+      <dt>HSTS</dt><dd>${yes(d.security["strict-transport-security"])}</dd>
+      <dt>X-Frame-Options</dt><dd>${yes(d.security["x-frame-options"])}</dd>
+      <dt>X-Content-Type</dt><dd>${yes(d.security["x-content-type-options"])}</dd>
+      <dt>Google Analytics</dt><dd>${yes(d.tracking.google_analytics)}</dd>
+      <dt>Meta Pixel</dt><dd>${yes(d.tracking.meta_analytics)}</dd>
+      <dt>Form labels</dt><dd>${d.accessibility.total_inputs - d.accessibility.missing_labels}/${d.accessibility.total_inputs} labelled</dd>
+    </dl></div>
+  </div>
+
+  <div class="tools">
+    <button class="ghost" id="rerun">Re-run</button>
+    <button class="ghost" id="dl">Download JSON</button>
+  </div>`;
+  $("#report").style.display = "block";
+  $("#rerun").onclick = () => run(url);
+  $("#dl").onclick = () => {
+    const blob = new Blob([JSON.stringify(lastResult, null, 2)], {type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = `siteflare-${url.replace(/^https?:\/\//,"").replace(/[^\w.-]+/g,"_")}.json`; a.click();
+  };
+}
+
+renderRecent(); loadHealth();
+</script>
+</body>
+</html>
